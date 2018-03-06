@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<HTML>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../vendors/jquery-easyui-1.4.5/themes/bootstrap/easyui.css"/>
+    <link rel="stylesheet" type="text/css" href="../vendors/jquery-easyui-1.4.5/themes/icon.css"/>
+
+    <script type="text/javascript" src="../vendors/jquery1.11.3/jquery.min.js"></script>     
+    <script type="text/javascript" src="../vendors/jquery-easyui-1.4.5/jquery.easyui.min.js"></script>   
+    <script type="text/javascript" src="../vendors/jquery-easyui-1.4.5/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="../js/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="../js/jquery.startsi.js"></script>
+    <script type='text/javascript' src="../js/JSON.js"></script>
+    <script type="text/javascript" src="../js/exportExcel.js"></script>
+   
+
+</head>
+<body>
+    <div style="margin:20px 0;"></div>
+	<div id="yg" style="position:absolute;top:0px;left:0px;background-color:white;z-index: 99999;width:100%;height:100%"></div>
+    <div class="easyui-panel" title="查询条件" style="width:100%;">
+        <div style="padding:10px 10px 20px 10px">
+        <form id="curd_queryform" class="easyui-form" method="post" data-options="novalidate:true">
+            <table cellpadding="5">
+                <tr>
+                    <td class="table_label" id="tdtext">业务条形码</td>
+                    <td class="table_input"><input  type="text" name="barcode" id="inputtext" data-options="required:true" style="border-radius: 3px;border: 1px solid #95B8E7;" maxlength="15"/></td>
+                     <td class="table_label">组包号:</td>
+                   	<td class="table_input"><input  type="text" name="handlist" data-options="required:true" maxlength="15" style="border-radius: 3px;border: 1px solid #95B8E7;"/></td>
+                   	<td> <a style="width: 118px;" class="easyui-linkbutton c1 l-btn l-btn-small query" href="javascript:void(0)" group="" id="" onclick="query('fw-cabinet.cabinetService.queryInfo');">
+                			<span class="l-btn-left" style="margin-top: 0px;"><span class="l-btn-text">查询</span></span>
+            			</a>
+            			<a style="width: 118px;" class="easyui-linkbutton c5 l-btn l-btn-small cancel" href="javascript:void(0)" group="" id="clear" onclick="resets();">
+                			<span class="l-btn-left" style="margin-top: 0px;"><span class="l-btn-text">清除</span></span>
+            			</a>
+                   	</td>
+                </tr>
+                
+            </table>
+        </form>
+        <!--<div style="text-align:left;padding:5px">
+           
+        </div>-->
+      </div>
+    </div>
+
+    <div style="margin:20px 0;"></div>
+     <!-- 数据列表框 -->
+    <div class="easyui-panel" style="width:100%;" id="curd_layout_center">
+        <table id="curd_datagrid" class="easyui-datagrid" title="查询结果" style="width:100%;height:450px;border:true"></table>
+    </div> 
+     
+  	<div id="curd_add_dialog">
+     <div style="padding:30px 50px 20px 50px">  
+            <form id="curd_dialogform" class="easyui-form" method="post" data-options="novalidate:true">
+             <table cellpadding="5">  
+                        <tr>  
+                            <td align="right">证件柜类型:</td>  
+                            <td>  
+                                <select  name="cabinettype" id="cabinettype" style="width: 130px;border-radius:3px;border:1px solid #95B8E7;" >
+                                	<!-- <option value="">请选择</option> -->
+       								<option value="1">公民</option>
+       								<option value="2">外国</option>
+                                </select> 
+                                <!--<input class="easyui-textbox" value="0" type="text" name="cabinettype" data-options="required:true" style="width: 100px;">-->
+                            </td>  
+                        </tr>  
+                        <tr>  
+                            <td align="right">指定证件柜号:</td>  
+                            <td>  
+                                <select class="easyui-combobox" name="cabinetid" id="cabinetid" style="width: 130px;">  
+                                    
+                                </select> 
+                               <!--  <input class="easyui-textbox" value="0" type="text" name="cabinetid"  data-options="required:true" style="width: 100px;"> -->
+                            </td>  
+                        </tr>  
+                        
+             </table>  
+             <table cellpadding="8" style="border: 1px solid #95B8E7;width: 100%;">
+                        <tr align="left">  
+                            <td>&nbsp;&nbsp;</td>  
+                            <td>  
+                            	指定证件柜层数:
+                            </td>  
+                        </tr>  
+                        <tr>  
+                            <td align="right" width="30%">起始层:</td>  
+                            <td tyle="text-align: center;"><input class="easyui-textbox" value="0" type="text" name="beginboxrow" data-options="required:true" style="width: 100px;"></input></td>  
+                        </tr>  
+                        <tr>  
+                            <td align="right">终止层:</td>  
+                            <td><input class="easyui-textbox" value="0" type="text" name="endboxrow" data-options="required:true" style="width: 100px;"></input></td>  
+                        </tr>  
+                        </table>
+            </form>
+         </div>  
+    </div>
+    
+    <div id="curd_add_dialog1">
+     <div style="padding:30px 50px 20px 50px">  
+            <form id="curd_dialogform1" class="easyui-form" method="post" data-options="novalidate:true">
+             <table cellpadding="5">  
+                        <tr>  
+                            <td align="right">证件柜类型:</td>  
+                            <td>  
+                                <select  name="cabinettype" id="cabinettype1" style="width: 130px;border-radius:3px;border:1px solid #95B8E7;" >
+                                	<!-- <option value="">请选择</option> -->
+       								<option value="1">公民</option>
+       								<option value="2">外国</option>
+                                </select> 
+                            </td>  
+                        </tr>  
+                        <tr>  
+                            <td align="right">指定证件柜号:</td>  
+                            <td>  
+                               	<select class="easyui-combobox" name="cabinetid1" id="cabinetid1" style="width: 130px;">  
+                                    
+                                </select> 
+                            </td>  
+                        </tr>  
+                  </table>  
+                        <table cellpadding="8" style="border: 1px solid #95B8E7;width: 100%;">
+                        <tr align="left">  
+                            <td>&nbsp;&nbsp;</td>  
+                            <td>  
+                            	起始证件盒位置:
+                            </td>  
+                        </tr>  
+                        <tr>  
+                            <td align="right" width="30%">层:</td>  
+                            <td tyle="text-align: center;"><input  value="0" type="text" name="rows" id="rows" data-options="required:true" style="width: 100px;"  maxlength="2"></input></td>  
+                        </tr>  
+                        <tr>  
+                            <td align="right">列:</td>  
+                           <!--class="easyui-textbox"  --> <td><input  value="0" type="text" name="cols" id="cols" data-options="required:true" style="width: 100px;" maxlength="3"></input></td>  
+                        </tr>  
+                        </table>
+            
+            </form>
+         </div>  
+    </div>
+     
+    <!-- 数据列表工具栏 -->
+    <div id="curd_toolbar" style="text-align:left; padding:2px 10px 2px 0px;height:auto">
+        <a href="#" id="curd_btnadd"    class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">自动上架</a>
+        <a href="#" id="curd_btnedit"   class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">半自动上架</a>
+        <a href="#" id="curd_btnsearch" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">指定位置上架</a>
+        <a href="#" id="execlexport" class="easyui-linkbutton" data-options="iconCls:'icon-print',plain:true">列表打印</a>
+        <a href="#" id="curd_btnremove" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true">移除指定行</a>
+        <a href="#" id="curd_btncancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true">清空列表</a>
+        <!--<a href="#" id="curd_btnexcel"  class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="expExcel();">导出Excel</a>-->
+    </div> 
+        
+    <script type="text/javascript"> 
+	$.parser.onComplete($("#yg").css("display","none"));
+    jQuery.support.cors=true;
+    var initGtbhflag="";
+    var initGtbhflag1="";
+	var sessionid="";
+	var loopflag =true;
+    //页面初始化
+    $(function() {      
+    	sessionid = JSON.parse(sessionStorage['sessionid']);
+   		initdialog();
+       //数据分页列表
+       $('#curd_datagrid').startsi_datagrid({ 
+            toolbar : '#curd_toolbar',  //工具栏
+			 pagination : false,
+           	//url : 'data.json', //查询数据url
+           	//method:'get',
+            idField : 'tblno',  //ID字段名，必须的，用于定位行的位置
+            singleSelect:true,
+            columns : [[        //显示表列
+                //{field:'ck',checkbox:true},
+                {field:'cbtype',title:'业务类型',width:100},
+                {field:'turnlist',title:'业务包号',width:200},
+                {field:'tblno',title:'业务条码',width:200},
+                {field:'cpasstype',title:'证件类型',width:100},
+                {field:'esurname',title:'姓',width:100},
+                {field:'egivename',title:'名',width:100},
+                {field:'csex',title:'性别',width:100},
+                {field:'passno',title:'证件号码',width:100},
+                {field:'cabinetid',title:'证件柜号',width:100},
+                {field:'boxid',title:'格子编号',width:100},
+                {field:'cabinetrow',title:'层号',width:100},
+                {field:'cabinetcol',title:'列号',width:100},
+                {field:'bookdate',title:'预约取证日期',width:100}
+            ]]
+       });  
+      //hidden:true;
+     /*   //下拉框初始化
+       $('#curd_country').startsi_combogrid({codetable:'ccountrytbl'}); //代码动态下拉框       
+       $('#curd_passtype').startsi_combogrid({codetable:'cpasstypetbl'});          
+       $('#curd_areacode').startsi_combogrid({codetable:'careacodetbl',initsql:"code like '11%'"}); //代码动态下拉框+初始化条件 */
+    });
+    
+    //判断是否是公民类型还是外国类型，并加载证件柜子的下拉列表
+    function initGtbh(){
+    	$("#cabinettype option").show();
+    	var rows = $('#curd_datagrid').startsi_datagrid('getRows')[0];
+    	////console.log(rows)
+    	var data ="";
+    	if(rows==null){$.messager.show({title:'操作提示：',msg:"请先查询数据"});initGtbhflag =false;return;}else{initGtbhflag=true}
+    	////console.log(rows.btype);
+    	if(rows.btype == "101" || rows.btype=="102" || rows.btype=="103" || rows.btype=="104" || rows.btype=="211" || rows.btype=="221" || rows.btype=="222"){
+    		$("#cabinettype option:eq(0)").attr("selected",true);
+    		$("#cabinettype option:eq(1)").attr("disabled",true);//hide();
+    		//var a= $("#cabinettype").find("option:selected").text();
+    		//////console.log(a);
+    		data ={"boxstatustbl":{"cabinettype":"1"}};
+    		//////console.log("111111111");
+    		////console.log(data);
+    	}else{
+    		$("#cabinettype option:eq(1)").attr("selected",true);
+    		$("#cabinettype option:eq(0)").attr("disabled",true);  //hide();
+    		data ={"boxstatustbl":{"cabinettype":"2"}}
+    	}
+    	$("#cabinettype").val();
+    	////console.log("输出cabinettype的值");
+    	////console.log($("#cabinettype").val());
+    	
+    	var jsondata={"token":sessionid,"funcid":"fw-cabinet.cabinetService.getlistCabinet","data":data};
+    	var a = JSON.stringify(jsondata)
+    	 var postUrl = '/FWWeb/index.do';
+    	 $.ajax({
+ 			url:postUrl,
+ 			method:'post',
+ 			async:true,
+ 			data:a,
+ 			dataType:'json',
+ 			success:function(result){
+ 				if('object' == typeof result){
+                     jsonObj = result;
+                 }else{
+                     jsonObj = $.parseJSON(result);
+                 }
+ 				////console.log(jsonObj);
+ 				////console.log(jsonObj.data.boxstatustbl);
+ 				$('#cabinetid').combogrid({
+ 		    	    panelWidth:150,
+ 		    	    //value:'006',
+ 		    	    data:jsonObj.data.boxstatustbl,
+ 		    	    idField:'cabinetid',
+ 		    	    textField:'cabinetid',
+ 		    	    columns:[[
+ 		    	    {field:'cabinetid',title:'柜台编号',width:120}
+ 		    	    
+ 		    	    ]]
+ 		    	  });
+ 				
+ 			}
+    	 
+ 		});	
+    	
+    }
+    
+  //判断是否是共鸣类型还是外国类型，并加载证件柜子的下拉列表
+    function initGtbh1(){
+    	$("#cabinettype1 option").show();
+    	var rows = $('#curd_datagrid').startsi_datagrid('getRows')[0];
+    	//var rows = $('#curd_datagrid').startsi_datagrid('getSelected');
+    	////console.log(rows)
+    	var data ="";
+    	if(rows==null){$.messager.show({title:'操作提示：',msg:"请先查询数据"});initGtbhflag1 =false;return;}else{initGtbhflag1=true}
+    	////console.log(rows.btype);
+    	if(rows.btype == "101" || rows.btype=="102" || rows.btype=="103" || rows.btype=="104" || rows.btype=="211" || rows.btype=="221" || rows.btype=="222"){
+    		$("#cabinettype1 option:eq(0)").attr("selected",true);
+    		$("#cabinettype1 option:eq(1)").attr("disabled",true);//hide();
+    		//var a= $("#cabinettype").find("option:selected").text();
+    		//////console.log(a);
+    		
+    		data ={"boxstatustbl":{"cabinettype":"1"}};
+    		//////console.log("111111111");
+    		////console.log(data);
+    	}else{
+    		$("#cabinettype1 option:eq(1)").attr("selected",true);
+    		$("#cabinettype1 option:eq(0)").attr("disabled",true);//hide();
+    		data ={"boxstatustbl":{"cabinettype":"2"}}
+    	}
+    	$("#cabinettype1").val();
+    	////console.log("输出cabinettype的值");
+    	////console.log($("#cabinettype").val());
+    	
+    	var jsondata={"token":sessionid,"funcid":"fw-cabinet.cabinetService.getlistCabinet","data":data};
+    	var a = JSON.stringify(jsondata);
+    	 var postUrl = '/FWWeb/index.do';
+    	 ////console.log(JSON.stringify(jsondata));
+    	 $.ajax({
+ 			url:postUrl,
+ 			method:'post',
+ 			async:true,
+ 			data:a,
+ 			dataType:'json',
+ 			success:function(result){
+ 				if('object' == typeof result){
+                     jsonObj = result;
+                 }else{
+                     jsonObj = $.parseJSON(result);
+                 }
+ 				////console.log(jsonObj);
+ 				////console.log(jsonObj.data.boxstatustbl);
+ 				$('#cabinetid1').combogrid({
+ 		    	    panelWidth:150,
+ 		    	    //value:'006',
+ 		    	    data:jsonObj.data.boxstatustbl,
+ 		    	    idField:'cabinetid',
+ 		    	    textField:'cabinetid',
+ 		    	    columns:[[
+ 		    	    {field:'cabinetid',title:'柜台编号',width:120}
+ 		    	    
+ 		    	    ]]
+ 		    	  });
+ 				
+ 			}
+    	 
+ 		});	
+    	
+    }
+    //点击切换input框事件绑定
+//  $("#tdtext").click(function(){
+//  	
+//  	var flag=$(this).text();
+//  	//alert(flag);
+//  	if(flag=="业务条形码"){
+//  		//alert();
+//  		$(this).html("组包号");
+//  		$("#inputtext").attr("name","handlist");
+//  		//flag="2";
+//  	}else{
+//  		//alert()
+//  		$(this).html("业务条形码");
+//  		$("#inputtext").attr("name","barcode");
+//  	}
+//  })
+//  
+    //初始化对话框的方法
+    function initdialog(){
+    	$('#curd_add_dialog').dialog({       
+            title:'半自动上架',         
+            width: 400,  
+            height: 350,     
+           	closed: true,
+            dialog:'curd_add_dialog',
+            //queryParams: { allData },
+            buttons:[{
+                text:'确定',
+                iconCls:'icon-edit',
+                handler:function(){
+                	//var rows = $('#curd_datagrid').startsi_datagrid('getRows');
+                	
+                	var rows = $('#curd_datagrid').startsi_datagrid('getRows');
+                	//var selected = $('#curd_datagrid').startsi_datagrid('getSelections');
+                	//if(selected.length>0){rows=selected;}
+					if(rows.length == 0){$.messager.alert({title:'操作提示：',msg:"请选查询数据!"}); return;}
+					////console.log("输出当前页面取得的数据");
+					////console.log(rows);
+                    var queryParame = $('#curd_dialogform').startsi_serializeform();//序列化
+                    if (queryParame.cabinetid==""){
+						$.messager.alert({title:'操作提示：',msg:"证件柜号不能为空!"});
+						return;
+					}
+					//if(queryParame.beginboxrow )
+					
+                    var data ={"boxstatustbl":rows,"type":queryParame}
+					var jsondata={"token":sessionid,"funcid":"fw-cabinet.cabinetService.autoStore","data":data}
+	
+                    var allData = JSON.stringify(jsondata);  
+                    ////console.log("alldata");
+                    ////console.log(allData);
+                    var postUrl = '/FWWeb/index.do';
+                    MaskUtil.mask();
+                    $.post(postUrl,allData)
+                    .success(function(data){                                
+                            var r;
+                            try{
+                                r = $.parseJSON(data);
+                            }catch(e){                      
+                                $.messager.progress('close');
+                                $.messager.alert('服务器执行异常：',data,'error');                                  
+                                return;
+                            };                              
+                            if (r.success){
+                                 ////console.log(r.success);
+                                $.messager.progress('close');
+                                $('#curd_add_dialog').dialog('close');     
+                                //清空存在客户端的记录总数，下次查询时再次统计                                                       
+                                $.messager.show({title:'操作提示：',msg:"上架成功!"});  
+                                $("#curd_datagrid").startsi_datagrid('loadData',r.data.boxstatustbl);//岑巩以后执行的保存日志的表方法
+                                var data ={"boxstatustbl":r.data.boxstatustbl,"type":{"opertype":"0"}}
+                                var jsondata={"token":sessionid,"funcid":"fw-cabinet.cabinetService.saveAutoStore","data":data};
+                   			    var allData = JSON.stringify(jsondata);
+                   			    var postUrl = '/FWWeb/index.do';
+                                $.post(postUrl,allData)
+                    				.success(function(data){
+                    					MaskUtil.unmask();
+                    					////console.log("输出上架成功后的返回信息");
+                    					////console.log(data);
+                    					$.messager.show({title:'操作提示：',msg:"半自动上架成功!"});  
+                    				})
+                    				.error(function(data){
+                    					MaskUtil.unmask();
+                    				});
+                            }else{
+                                $.messager.progress('close');   
+                                MaskUtil.unmask();
+                                $.messager.alert('数据保存失败：',r.msg,'error');   
+                                
+                            }
+                        });
+                }
+            },{
+                text:'取消',
+                iconCls:'icon-help',
+                handler:function(){
+                    $('#curd_add_dialog').dialog('close');
+                }
+            }]
+        });
+        
+        $('#curd_add_dialog1').dialog({       
+            title:'指定位置上架',         
+            width: 400,  
+            height: 350,     
+           	closed: true,
+            dialog:'curd_add_dialog1',
+            //queryParams: { allData },
+            buttons:[{
+                text:'确定',
+                iconCls:'icon-edit',
+                handler:function(){
+                	//var rows = $('#curd_datagrid').startsi_datagrid('getRows');
+                	var rows = $('#curd_datagrid').startsi_datagrid('getRows');
+                	//var selected = $('#curd_datagrid').startsi_datagrid('getSelections');
+                	//if(selected.length>0){rows=selected;}
+					if(rows.length == 0){$.messager.alert({title:'操作提示：',msg:"请选查询数据!"}); return;}
+					////console.log("输出当前页面取得的数据");
+					//var a = rows[0].tblno.toUpperCase();
+					////console.log(rows);
+					
+					
+					
+					//if(rows==null){ $.messager.show({title:'操作提示：',msg:"请选选中一条数据!"});return;}
+					
+					
+					
+					//return;
+					var cabinetid1 = $("input[name='cabinetid1']").val();
+					if(cabinetid1==""){$.messager.show({title:'操作提示：',msg:"请指定证件柜号!"});return;}
+					//rows.cabinetid=cabinetid1;
+					////console.log("输出获取到的select的值");
+					////console.log($("#cabinettype1").val());
+					
+					////console.log("输出判断信息");
+					////console.log($("input[name='cols']").val()*1+rows.length*1);
+					if($("input[name='rows']").val().length==1){
+						 $.messager.show({title:'操作提示：',msg:"不足两位请在前面补0!"});
+						 return;
+					}
+					if($("input[name='rows']").val()>15){
+						 $.messager.show({title:'操作提示：',msg:"层不能超过15!"});
+						 return;
+					}
+					if($("input[name='cols']").val().length==1 || $("input[name='cols']").val().length==2){
+						 $.messager.show({title:'操作提示：',msg:"一位请在前面补00，两位请在前面补0!"});
+						 return;
+					}
+					if($("input[name='cols']").val()>100){
+						 $.messager.show({title:'操作提示：',msg:"列不能超过100!"});
+						 return;
+					}
+					var numflag = /^[0-9]*$/.test($("input[name='rows']").val());
+					////console.log("输出数字验证标示");
+					////console.log(flag);
+					if(!numflag){
+						$.messager.show({title:'操作提示：',msg:"请输入数字!"});
+						return;
+					}
+					
+					var numflag2 = /^[0-9]*$/.test($("input[name='cols']").val());
+					////console.log("输出数字验证标示2");
+					////console.log(flag);
+					if(!numflag2){
+						$.messager.show({title:'操作提示：',msg:"请输入数字!"});
+						return;
+					}
+					//if($("input[name='cols']"))
+					//var a =055;
+					//var b=050;
+					//////console.log("a+b");
+					//////console.log(a+b);
+					if($("#cabinettype1").val()=="1"){if($("input[name='rows']").val()>16){$.messager.alert({title:'操作提示：',msg:"指定的证件柜子的层数不存在!"});return;}};
+					if($("#cabinettype1").val()=="2"){if($("input[name='rows']").val()>14){$.messager.alert({title:'操作提示：',msg:"指定的证件柜子的层数不存在!"});return;}};
+					if($("#cabinettype1").val()=="1"){if($("input[name='cols']").val()*1+rows.length*1>100){$.messager.alert({title:'操作提示：',msg:"指定的证件柜列数不够放!"});return;}};
+					if($("#cabinettype1").val()=="2"){if($("input[name='cols']").val()*1+rows.length*1>70){$.messager.alert({title:'操作提示：',msg:"指定的证件柜列数不够放!"});return;}};
+					var boxid =cabinetid1+$("input[name='rows']").val()+$("input[name='cols']").val();
+					////console.log("输出boxid");
+					////console.log(boxid);
+					////console.log("输出格子");
+					
+					//return;
+					var data ={"boxstatustbl":{"boxid":boxid}};
+					var jsondata={"token":sessionid,"funcid":'fw-cabinet.cabinetService.queryBoxstatus',"data":data};
+					var a = JSON.stringify(jsondata);
+					 var postUrl = '/FWWeb/index.do';
+					 //MaskUtil.mask();
+					$.ajax({
+						url:postUrl,
+						method:'post',
+						async:false,
+						data:a,
+						dataType:'json',
+						success:function(result){
+							if('object' == typeof result){
+		                    	jsonObj = result;
+		                	}else{
+		                    	jsonObj = $.parseJSON(result);
+		               		}
+							////console.log(jsonObj);
+							if(!jsonObj.success){
+							 	$.messager.show({title:'操作提示：',msg:jsonObj.msg});
+							 	return;
+							}
+							if(jsonObj.success){
+							
+							
+							
+							
+							
+								$.messager.confirm('确认','该格子可以存储，是否继续上架操作',function(r){
+			                        if (r){
+			                           	Loop_ajax(0,rows.length,boxid);
+			                           	if (loopflag){
+			                           		var loopboxid = boxid;
+			                           		$.each(rows, function(i,d) {
+			                           			d.boxid=loopboxid;
+			                           			d.orderno=i;
+			                           			d.cabinetid=cabinetid1;
+			                           			loopboxid=boxidadd(loopboxid);
+			                           		});
+			                           		//console.log("输出回执的结果");
+			                           		//console.log(rows);
+			                           		
+			                           		var parameter = {
+			                           			 "token":sessionid,
+			                            		"funcid":'fw-cabinet.cabinetService.saveAutoStore',
+			                            		"data":{
+			                           				"type":{"opertype":"1"},
+			                           				"boxstatustbl":rows
+			                            		}
+			                    			}
+			                   			 var allData = JSON.stringify(parameter);
+			                    		 //console.log("输出要传递的参数");
+			                    		 //console.log(allData);
+										 MaskUtil.mask();
+			                           	var postUrl = '/FWWeb/index.do';
+										$.ajax({
+											url:postUrl,
+											method:'post',
+											async:false,
+											data:allData,
+											dataType:'json',
+											success:function(result){
+											if('object' == typeof result){
+		                    					jsonObj = result;
+		               						 }else{
+		                    					jsonObj = $.parseJSON(result);
+		                					}
+		               							//console.log(result);
+												
+												if (jsonObj.success){
+													MaskUtil.unmask();
+													$.messager.show({title:'操作提示：',msg:"指定上架成功"});
+													 $("#curd_datagrid").startsi_datagrid('loadData',rows); 
+												}
+												if(!jsonObj.success){
+													MaskUtil.unmask();
+													$.messager.alert({title:'操作提示：',msg:jsonObj.msg});
+												}
+											}
+			                          	});
+			                           		
+			                           		
+			                           	}
+			                        }
+			                     });
+								 
+								 
+								 
+								 
+								 
+								 
+								 
+								 
+								 
+							}
+						}
+					});		
+					
+					
+					return;
+					//需要先验证一次指定的证件的BOXID是否已经存放了证件
+					var data ={"boxstatustbl":{"boxid":boxid}};
+					var jsondata={"token":sessionid,"funcid":'fw-cabinet.cabinetService.queryBoxstatus',"data":data};
+					var a = JSON.stringify(jsondata);
+					 var postUrl = '/FWWeb/index.do';
+						$.ajax({
+							url:postUrl,
+							method:'post',
+							async:true,
+							data:a,
+							dataType:'json',
+							success:function(result){
+								if('object' == typeof result){
+				                    jsonObj = result;
+				                }else{
+				                    jsonObj = $.parseJSON(result);
+				                }
+								////console.log(jsonObj);
+								if(!jsonObj.success){
+									 $.messager.show({title:'操作提示：',msg:jsonObj.msg});
+									 return;
+								}
+								if(jsonObj.success){
+									if(jsonObj.data.boxstatustbl[0].boxflag=="0"){
+										rows.boxid=boxid;
+										var obj1=[];
+										obj1.push(rows);
+										////console.log("输出obj");
+										////console.log(obj);
+										//return;
+					                    var parameter = {
+					                            "token":sessionid,
+					                            "funcid":'fw-cabinet.cabinetService.saveAutoStore',
+					                            "data":{
+					                           		"type":{"opertype":"1"},
+					                           		"boxstatustbl":obj1
+					                            }
+					                    }
+					                    var allData = JSON.stringify(parameter);
+					                    ////console.log("输出要传递的参数");
+					                    ////console.log(allData);
+					                    var postUrl = '/FWWeb/index.do';
+					                    $.post(postUrl,allData)
+					                    .success(function(data){
+					                    		////console.log("输出上架返回的结果")
+					                    		////console.log(data)
+					                            var r;
+					                            try{
+					                                r = $.parseJSON(data);
+					                            }catch(e){                      
+					                                $.messager.progress('close');
+					                                $.messager.alert('服务器执行异常：',data,'error');                                  
+					                                return;
+					                            };                              
+					                            if (r.success){
+					                                 ////console.log(r.success);
+					                                $.messager.progress('close');
+					                                $('#curd_add_dialog1').dialog('close');     
+					                                //清空存在客户端的记录总数，下次查询时再次统计                                                       
+					                                $.messager.show({title:'操作提示：',msg:"指定上架成功!"});       
+					                            }else{
+					                                $.messager.progress('close');   
+					                                $.messager.alert('数据保存失败：',r.msg,'error');          
+					                            }
+					                        });
+									}
+								}
+							}
+						});		
+					//	
+					
+					//return;
+					
+                }
+            },{
+                text:'取消',
+                iconCls:'icon-help',
+                handler:function(){
+                    $('#curd_add_dialog1').dialog('close');
+                }
+            }]
+        });
+    }
+    
+    
+    //定义一个累加BOXID的小方法
+    /*function boxidadd(boxid){
+    	//////console.log(boxid.substring(boxid.length-2,boxid.length));
+					//////console.log(boxid*1+1);
+		var a =boxid.substring(boxid.length-2,boxid.length);
+		//////console.log(a*1+1);
+		var c = a*1+1;
+		//////console.log(boxid.substring(0,boxid.length-2));
+		var b =boxid.substring(0,boxid.length-2);
+		//////console.log(b+c);
+		return b+c;
+    }*/
+	
+	
+function boxidadd(boxid){
+    	////console.log(boxid.substring(boxid.length-2,boxid.length));
+					////console.log(boxid*1+1);
+		var c ="";
+		var a =boxid.substring(boxid.length-2,boxid.length);
+		//console.log(a*1+1);
+		if((a*1+1)<10){
+			c=a*1+1;
+			return boxid.substring(0,boxid.length-1)+c;
+		}
+		if((a*1+1)==100){
+		 
+		 	 c = a*1+1;
+		 	 return boxid.substring(0,boxid.length-3)+c;
+		 }
+		if((a*1+1)>100){
+		 	$.messager.show({title:'操作提示：',msg:"指定上架格子不够存放，超出范围!"});
+		 	return;
+		 }
+		 if((a*1+1)>=10){
+		 	 c = a*1+1;
+		 	 //alert();
+		 	 return boxid.substring(0,boxid.length-2)+c;
+		 }
+		 
+		 
+		////console.log(boxid.substring(0,boxid.length-2));
+		//var b =boxid.substring(0,boxid.length-2);
+		////console.log(b+c);
+		//return b+c;
+    }
+    
+    
+	//绑定工具栏的事件
+	//自动上架绑定事件  先要autosave接口然后再saveAuto
+	$("#curd_btnadd").click(function(){
+					var	rows= $('#curd_datagrid').startsi_datagrid('getRows');;
+					//var selected = $('#curd_datagrid').startsi_datagrid('getSelections');
+					////console.log("输出selected的值");
+					////console.log(selected);
+					//if(selected.length>0){rows=selected;}
+					if(rows.length == 0){$.messager.alert({title:'操作提示：',msg:"请选查询数据!"}); return;}
+					////console.log("输出rows的值");
+					////console.log(rows);
+                	//var selected = $('#curd_datagrid').startsi_datagrid('getSelected');
+                	
+                	 var rowsfirst = $('#curd_datagrid').startsi_datagrid('getRows')[0];
+                	 if(rowsfirst==null){$.messager.show({title:'操作提示：',msg:"请先查询数据"});return;}
+                	var type ="";
+          
+                	if(rowsfirst.btype == "101" || rowsfirst.btype=="102" || rowsfirst.btype=="103" || rowsfirst.btype=="104" || rowsfirst.btype=="211" || rowsfirst.btype=="221" || rowsfirst.btype=="222"){
+                		
+                		//var a= $("#cabinettype").find("option:selected").text();
+                		//////console.log(a);
+                		type ={"cabinettype":"1","cabinetid":"","beginboxrow":"","endboxrow":""}
+                		
+                		
+                	}else{
+                		
+                		type ={"cabinettype":"2","cabinetid":"","beginboxrow":"","endboxrow":""}
+                	} 
+					////console.log("输出当前页面取得的数据");
+					////console.log(rows);
+                   // var queryParame = $('#curd_dialogform').startsi_serializeform();//序列化
+                    
+                    var data ={"boxstatustbl":rows,"type":type}
+					var jsondata={"token":sessionid,"funcid":"fw-cabinet.cabinetService.autoStore","data":data}
+	
+                    var allData = JSON.stringify(jsondata);  
+                    ////console.log("alldata");
+                    ////console.log(allData);
+                    var postUrl = '/FWWeb/index.do';
+                    MaskUtil.mask();
+                    $.post(postUrl,allData)
+                    .success(function(data){                                
+                            var r;
+                            try{
+                                r = $.parseJSON(data);
+                            }catch(e){                      
+                                $.messager.progress('close');
+                                $.messager.alert('服务器执行异常：',data,'error');
+                                MaskUtil.unmask();
+                                return;
+                            };                              
+                            if (r.success){
+                                 ////console.log(r.success);
+                               // $.messager.progress('close');
+                              //  $('#curd_add_dialog').dialog('close');     
+                                //清空存在客户端的记录总数，下次查询时再次统计                                                       
+                                //$.messager.show({title:'操作提示：',msg:"自动上架成功!"});  
+                                $("#curd_datagrid").startsi_datagrid('loadData',r.data.boxstatustbl); 
+                                var data ={"boxstatustbl":r.data.boxstatustbl,"type":{"opertype":"0"}}
+                                var jsondata={"token":sessionid,"funcid":"fw-cabinet.cabinetService.saveAutoStore","data":data};
+                   			    var allData = JSON.stringify(jsondata);
+                   			    var postUrl = '/FWWeb/index.do';
+                                $.post(postUrl,allData)
+                    				.success(function(data){
+                    					MaskUtil.unmask();
+                    					////console.log("输出上架成功后的返回信息");
+                    					////console.log(data);
+                    					$.messager.show({title:'操作提示：',msg:"自动上架成功!"});  
+                    				})
+                    				.error(function(data){
+                    					MaskUtil.unmask();
+                    				});
+                            }else{
+                                $.messager.progress('close');   
+                                $.messager.alert('数据保存失败：',r.msg,'error');
+                                MaskUtil.unmask();
+                            }
+                        });
+                
+	})
+	//清空列表绑定事件
+	$("#curd_btncancel").click(function(){
+		//alert();
+		// $('#curd_datagrid').startsi_datagrid('loadData',{total: 0,rows:[]});
+		var item = $('#curd_datagrid').startsi_datagrid('getRows');  
+		//////console.log()
+            if (item) {  
+                for (var i = item.length - 1; i >= 0; i--) {  
+                    var index = $('#curd_datagrid').startsi_datagrid('getRowIndex', item[i]);  
+                    $('#curd_datagrid').startsi_datagrid('deleteRow', index);
+                }  
+            }  
+	})
+	//半自动上架绑定事件
+	$("#curd_btnedit").click(function(){
+		initGtbh();
+		if(initGtbhflag){
+		$('#curd_add_dialog').dialog('open');
+		}
+	})
+	//指定位置上架绑定事件
+	$("#curd_btnsearch").click(function(){
+		
+		initGtbh1();
+		if(initGtbhflag1){
+		$('#curd_add_dialog1').dialog('open');
+		}
+	})
+	//删除指定行的绑定事件
+	$("#curd_btnremove").click(function(){
+		var row =$('#curd_datagrid').startsi_datagrid('getSelected');
+		if(row){
+			var rowIndex = $('#curd_datagrid').startsi_datagrid('getRowIndex', row);
+         	$('#curd_datagrid').startsi_datagrid('deleteRow', rowIndex);  
+		}
+	})
+	
+    //查询按钮
+    function query(funcid){
+        var queryParame = $('#curd_queryform').startsi_serializeform();
+//      var queryParame="";
+//      var name = $("#inputtext").attr("name");
+//      if(name=="barcode"){
+//      	 var barcode = $("#inputtext").val();
+//      	 queryParame={"barcode":barcode,"handlist":""};
+//      }
+//      if(name=="handlist"){
+//      	var handlist = $("#inputtext").val();
+//      	queryParame={"barcode":"","handlist":handlist};
+//      }
+        ////console.log(queryParame);
+		if(queryParame.barcode!="" && queryParame.handlist!=""){
+			$.messager.alert({msg:'请选择业务条码或组包号进行查询!',title:'提示'});
+			return;
+		}
+        var param1 = {
+          "token":sessionid,
+          "funcid":funcid,
+          "data":queryParame
+        }
+        var alldata = JSON.stringify(param1);
+        ////console.log(alldata);
+        httpAjax(alldata,'curd_datagrid');
+        //$('#curd_datagrid').startsi_datagrid('load', $('#curd_queryform').startsi_serializeform()); */
+    };  
+    //
+    
+    function httpAjax(param,id){
+	MaskUtil.mask();
+    	$.ajax({
+            url:'/FWWeb/index.do',//'/FWWeb/index.do',
+            method:'post',
+            dataType:'json',
+            async:true,         
+            data:param,
+            success:function(result){
+                //$(".datagrid-btable tbody").remove();
+                ////console.log(result);
+				MaskUtil.unmask();
+                var jsonObj="";
+                var cabinetFlag="";
+                if('object' == typeof result){
+                    jsonObj = result;
+                }else{
+                    jsonObj = $.parseJSON(result);
+                }
+				if(typeof(jsonObj.data.tip)!="undefined"){
+					 $.messager.alert('提示信息:',jsonObj.data.tip[0].info,'error');
+					 MaskUtil.unmask();
+					 return;
+				}
+                //if(!jsonObj.success){
+                 //   $.messager.show({msg:'没有查到相应的数据!',title:'提示'});
+                 //   return;
+                //}
+				/*else{
+                	//////console.log(jsonObj.data.boxstatustbl);
+                    $.messager.show({msg:'查询成功!',title:'提示'});
+                }*/
+                var obj=[]
+                $.each(jsonObj.data.boxstatustbl,function(i,d){
+                    obj.push(d);
+                })
+                ////console.log("输出查询后的内容")
+                ////console.log(obj);
+                //判断btype的类型，如果是公民的话cabinettype的值为1，如果不是的话则cabinettype的值wei
+              
+               var istrue = true;
+               //判断查询的数据是否已经在列表中，如果有就不加载，如果没有就累加
+              	var row =$('#curd_datagrid').startsi_datagrid('getData');
+               ////console.log("row");
+               ////console.log(row);
+              	$.each(row.rows, function(i,drow) {
+              		$.each(obj, function(i,d) {
+              			if(drow.tblno==d.tblno){
+              			   $.messager.alert({msg:'查询的数据已在列表中!',title:'提示'});
+              			   istrue=false;
+						   return false;
+              			   //return;
+              			}
+              		});
+              		if(!istrue){
+              		return false;
+					}
+					
+              	});
+              	if(!istrue){
+              		return;
+              	}
+              	//这一部分的代码是用来控制是否是同一种类型的证件代码（公民，外国）;
+              	var samerow =$('#curd_datagrid').startsi_datagrid('getRows')[0];
+              	////console.log("输出samerow");
+              	////console.log(samerow);
+              	if(samerow!=null){
+              		var sameRowflag="";
+              		if(samerow.btype == "101" || samerow.btype=="102" || samerow.btype=="103" || samerow.btype=="104" || samerow.btype=="211" || samerow.btype=="221" || samerow.btype=="222"){
+                  		cabinetFlag="1";
+                	}else{
+                		cabinetFlag="2";
+                	}
+                  	$.each(obj, function(i,d) {
+                  		////console.log(obj);
+                  		if(d.btype == "101" || d.btype=="102" || d.btype=="103" || d.btype=="104" || d.btype=="211" || d.btype=="221" || d.btype=="222"){
+                      		var cabinetflag="1";
+                      		////console.log("cabinetflag=1");
+                    	}else{
+                    		var cabinetflag="2";
+                    		////console.log("cabinetflag=2");
+                    	}
+                  		if(cabinetFlag!=cabinetflag){$.messager.alert({msg:'公民，外国类型必须保持一致!',title:'提示'});sameRowflag="1";return;}
+              		});
+                  	if(sameRowflag=="1"){
+                  		return;
+                  	}
+                  	////console.log(samerow);
+              	};
+              	//该部分代码结束;
+              	//return;
+              	//如果符合以上无重复，无不同证件类型的判断条件的话就将信息累加进去
+              	////console.log("原先表单数据的内容");
+              	////console.log(row);
+              	if(row.rows.length>0){
+              		$.each(row.rows, function(i,d) {
+              			obj.push(d);
+              		});
+              	}
+              	////console.log("obj");
+              	////console.log(obj);
+                $('#'+id).startsi_datagrid('loadData',obj); 
+                //$('#curd_datagrid').startsi_datagrid('options').title='111';
+                //$("#grid").datagrid("getPanel").panel("setTitle","new Title");
+            }//success:function END
+            ,error:function(XMLHttpRequest, textStatus, errorThrown){
+                $.messager.alert({msg:'请求超时，请检查网络!',title:'提示'});
+				MaskUtil.unmask();
+            }
+        });
+    }
+    
+    
+    //清空按钮
+    function resets(){
+        $('#curd_queryform').form('clear');
+    };  
+    //EXCEL按钮
+    function expExcel(funcid){
+        var queryParame = $('#curd_queryform').startsi_serializeform();
+        var param1 = {
+          "token":"",
+          "funcid":funcid,
+          "data":queryParame
+        }
+       // var alldata = JSON.stringify(param1);
+        $.post('/FWWeb/export.do',queryParame);
+        expExcel2();
+    }; 
+  //EXCEL按钮
+    function expExcel2(funcid){
+       	open('/FWWeb/download.do');
+        //////console.log(open('/FWWeb/download.do'));
+    };  
+    
+  //easyui加载等待提示框方法  方法开始    
+	var MaskUtil = (function() {
+		var $mask, $maskMsg;
+		var defMsg = '正在处理，请稍待。。。';
+		function init() {
+			if(!$mask) {
+				$mask = $("<div class=\"datagrid-mask mymask\"></div>").appendTo("body");
+			}
+			if(!$maskMsg) {
+				$maskMsg = $("<div class=\"datagrid-mask-msg mymask\">" + defMsg + "</div>")
+					.appendTo("body").css({
+						'font-size': '12px'
+					});
+			}
+			$mask.css({
+				width: "100%",
+				height: $(document).height()
+			});
+			var scrollTop = $(document.body).scrollTop();
+			$maskMsg.css({
+				left: ($(document.body).outerWidth(true) - 190) / 2,
+				top: (($(window).height() - 45) / 2) + scrollTop
+			});
+		}
+		return {
+			mask: function(msg) {
+				init();
+				$mask.show();
+				$maskMsg.html(msg || defMsg).show();
+			},
+			unmask: function() {
+				$mask.hide();
+				$maskMsg.hide();
+			}
+		}
+	}());
+	//方法结束
+	//指定位置的时候一条条上架
+   /* function Loop_ajax(index, array,cabinetid1,boxid) {
+    	//console.log("进入指定上架循环boxid");
+		//console.log(boxid);
+		////console.log(array);
+		//console.log(index);
+        if (index < array.length) {           
+        	
+			array[index].cabinetid=cabinetid1;
+			//array[index].boxid=boxid;
+			//需要先验证一次指定的证件的BOXID是否已经存放了证件
+			var data ={"boxstatustbl":{"boxid":boxid}};
+			var jsondata={"token":sessionid,"funcid":'fw-cabinet.cabinetService.queryBoxstatus',"data":data};
+			var a = JSON.stringify(jsondata);
+			 var postUrl = '/FWWeb/index.do';
+				$.ajax({
+					url:postUrl,
+					method:'post',
+					async:false,
+					data:a,
+					dataType:'json',
+					success:function(result){
+						if('object' == typeof result){
+		                    jsonObj = result;
+		                }else{
+		                    jsonObj = $.parseJSON(result);
+		                }
+						////console.log(jsonObj);
+						if(!jsonObj.success){
+							//console.log("如果失败的话格子继续加");
+							//console.log("输出格子的信息");
+							var falseboxid=boxidadd(boxid);
+							//console.log(falseboxid);
+							Loop_ajax(index, array,cabinetid1,falseboxid);
+							 //return;
+						}
+						if(jsonObj.success){
+							if(jsonObj.data.boxstatustbl[0].boxflag=="0"){
+								array[index].boxid=boxid;
+								array[index].orderno=index;
+								var obj1=[];
+								obj1.push(array[index]);
+								
+								//return;
+			                    var parameter = {
+			                            "token":sessionid,
+			                            "funcid":'fw-cabinet.cabinetService.saveAutoStore',
+			                            "data":{
+			                           		"type":{"opertype":"1"},
+			                           		"boxstatustbl":obj1
+			                            }
+			                    }
+			                    var allData = JSON.stringify(parameter);
+			                    ////console.log("输出要传递的参数");
+			                    ////console.log(allData);
+			                    var postUrl = '/FWWeb/index.do';
+			                    $.post(postUrl,allData)
+			                    .success(function(data){
+			                    		////console.log("输出上架返回的结果")
+			                    		////console.log(data)
+			                            var jsonObj;
+										if('object' == typeof data) {
+											jsonObj = result;
+										} else {
+											jsonObj = $.parseJSON(data);
+										}                        
+			                            if (jsonObj.success){
+			                                 ////console.log(jsonObj.success);
+			                                                                                    
+			                                $.messager.show({title:'操作提示：',msg:"指定上架成功!"});  
+			                                $.messager.confirm('确认','是否继续上架下一条操作',function(r){
+			                            	    if (r){
+			                            	    	if (index < array.length) {
+			                            	    		var trueboxid=boxidadd(boxid);
+			                                            Loop_ajax(index + 1, array,cabinetid1,trueboxid);                    
+			                                       		}
+			                            	    }
+			                            	});
+			                                
+			                            }else{
+			                                $.messager.progress('close');   
+			                                $.messager.alert('数据保存失败：',jsonObj.msg,'error');          
+			                            }
+			                        });
+							}else{
+								//console.log("有格子信息但是已经有证件不能存储");
+								var falseboxid2=boxidadd(boxid);
+								//console.log(falseboxid2);
+								Loop_ajax(index, array,cabinetid1,falseboxid2);	
+							}
+						}
+					}
+				});		
+        }else{
+        	return;
+        }
+    }*/
+	
+	//批量指定上架
+	function Loop_ajax(index, len,boxid) {
+    	//console.log("进入指定上架循环");
+		//console.log(len);
+		//console.log(index);
+		//if()
+		
+        if (index < len) {           
+        	//console.log("22222");
+			//array[index].cabinetid=cabinetid1;
+			//array[index].boxid=boxid;
+			//需要先验证一次指定的证件的BOXID是否已经存放了证件
+			var data ={"boxstatustbl":{"boxid":boxid}};
+			var jsondata={"token":sessionid,"funcid":'fw-cabinet.cabinetService.queryBoxstatus',"data":data};
+			var a = JSON.stringify(jsondata);
+			 var postUrl = '/FWWeb/index.do';
+				$.ajax({
+					url:postUrl,
+					method:'post',
+					async:false,
+					data:a,
+					dataType:'json',
+					success:function(result){
+						if('object' == typeof result){
+		                    jsonObj = result;
+		                }else{
+		                    jsonObj = $.parseJSON(result);
+		                }
+						//console.log(jsonObj);
+						if(jsonObj.success){
+							if(jsonObj.data.boxstatustbl[0].boxflag=="0"){
+								//如果可以存放的话继续查询
+								//console.log("格子可以存下一次继续")
+								var trueboxid = boxidadd(boxid);
+								//console.log(trueboxid);
+								Loop_ajax(index+1,len,trueboxid);	
+								
+							}else{
+								//console.log("已经存了信息连续中断");
+								$.messager.alert({msg:'柜子列数不够存放!',title:'提示'});
+								loopflag = false;
+								return;
+							}
+						}
+						if(!jsonObj.success){
+							//jsonObj.success
+							//console.log("有格子不为空");
+							loopflag = false;
+							return;
+						}
+					}
+					
+					
+				});		
+				
+				/*if(!loopflag){
+					//console.log("1")
+					$.messager.alert({msg:'柜子列数不够存放!',title:'提示'});
+					return;
+				}*/
+        }else{
+        	return;
+        }
+    }
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+    
+	//前端导出execl的功能在IE浏览器下面可以使用.
+function replaceHtml(replacedStr, repStr, endStr) {
+    var replacedStrF = "";
+    var replacedStrB = "";
+    var repStrIndex = replacedStr.indexOf(repStr);
+    while (repStrIndex != -1) {
+        replacedStrF = replacedStr.substring(0, repStrIndex);
+        replacedStrB = replacedStr.substring(repStrIndex, replacedStr.length);
+        replacedStrB = replacedStrB.substring(replacedStrB.indexOf(endStr) + 1, replacedStrB.length);
+        replacedStr = replacedStrF + replacedStrB;
+        repStrIndex = replacedStr.indexOf(repStr);
+    }
+    return replacedStr;
+}  
+  
+  
+  
+var ToExcel_FF = (function() {
+    var uri = 'data:application/vnd.ms-excel;base64,',
+      template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+        base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))) },
+        format = function(s, c) {
+            return s.replace(/{(\w+)}/g,
+            function(m, p) { return c[p]; })
+        }
+    return function(GridPanel_ID, Border) {
+       // var elDiv = document.getElementById(GridPanel_ID);
+       var elDiv = $('.datagrid-btable');
+       var columns = $("#curd_datagrid").datagrid("options").columns[0]; 
+       //////console.log("输出表头的信息");
+       //////console.log(columns)
+       var str ='<tr id="addid">';
+       $.each(columns, function(i,d) {
+       		str+='<td>'+d.title+'</td>'
+       });
+       str+='</tr>';
+       //////console.log("拼接后的表头信息");
+       //////console.log(str);
+      $('.datagrid-btable').prepend(str);
+       //////console.log("输出eDIv html");
+      //////console.log(elDiv.html);
+      //return;
+        //过滤elDiv内容
+        var elDivStr = elDiv.html();
+        //var elDivStr = elDiv.innerHTML;
+        elDivStr = replaceHtml(elDivStr, "<a", ">");
+        elDivStr = replaceHtml(elDivStr, "</a", ">");
+        elDivStr = replaceHtml(elDivStr, "<img", ">");
+        //设置table的border=1，这样到excel中就有表格线 ps:感谢双面提醒
+        if (Border != null) {
+            elDivStr = elDivStr.replace(/<table/g, "<table border=" + Border);
+        }
+        var ctx = { worksheet: '' || 'Worksheet', table: elDivStr }
+        window.location.href = uri + base64(format(template, ctx));
+        //返回格式变换以前的内容
+        elDivStr = "";
+        elDiv = null;
+    }
+})()
+   
+   //判断浏览器的类型
+    function  getExplorer() {    
+            var explorer = window.navigator.userAgent ;    
+            //ie    
+            if (explorer.indexOf("MSIE") >= 0) {    
+                return 'ie';    
+            }    
+            //firefox    
+            else if (explorer.indexOf("Firefox") >= 0) {    
+                return 'Firefox';    
+            }    
+            //Chrome    
+            else if(explorer.indexOf("Chrome") >= 0){    
+                return 'Chrome';    
+            }    
+            //Opera    
+            else if(explorer.indexOf("Opera") >= 0){    
+                return 'Opera';    
+            }    
+            //Safari    
+            else if(explorer.indexOf("Safari") >= 0){    
+                return 'Safari';    
+            }    
+        }    
+   
+   
+    //toolbar几点点击事件的绑定
+    //一键导出EXECL的时间绑定
+    $("#execlexport").click(function(){
+    	
+    	  if(getExplorer()=='ie') {   
+            //获取Datagride的列  
+            	var rows = $('#curd_datagrid').datagrid('getRows');  
+            	var columns = $("#curd_datagrid").datagrid("options").columns[0];  
+            	//////console.log("输出列");
+            	//////console.log(columns);
+            	//var a= columns.splice(1,1);//用来移除指定的数组元素
+            	//////console.log("输出移除列以后的东西");
+            	//////console.log(a);
+            	var oXL = new ActiveXObject("Excel.Application"); //创建AX对象excel   
+            	var oWB = oXL.Workbooks.Add(); //获取workbook对象   
+            	var oSheet = oWB.ActiveSheet; //激活当前sheet  
+            	//设置工作薄名称  
+            	oSheet.name = "导出Excel报表";  
+            	//设置表头  
+            	for (var i = 0; i < columns.length; i++) {  
+               	 oSheet.Cells(1, i+1).value = columns[i].title;  
+            	}  
+            	//设置内容部分  
+            	for (var i = 0; i < rows.length; i++) {  
+                //动态获取每一行每一列的数据值  
+                for (var j = 0; j < columns.length; j++) {                 
+                    oSheet.Cells(i + 2, j+1).value = rows[i][columns[j].field];  
+                	}     
+            	}                
+            	oXL.Visible = true; //设置excel可见属性  
+            	//var a  = "C:"+"\\"+""\+"d.xls"
+            	//oXL.saveAs();
+			}else{
+				ToExcel_FF('curd_datagrid',1);
+				$("#addid").hide();
+			}
+    })
+			
+	
+</script>
+</body>
+</html>
